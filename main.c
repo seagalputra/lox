@@ -53,7 +53,7 @@ char* read_line() {
 
 void run_prompt() {
   // do loop for getting user input
-  char* buff;
+  char* buff = NULL;
   
   do {
     printf("lox> ");
@@ -62,7 +62,7 @@ void run_prompt() {
     printf("User input -> %s\n", buff);
 
     free(buff);
-  } while (*buff == EOF || signal(SIGTERM, exit_handler) == SIG_ERR || buff == "exit()");
+  } while (signal(SIGTERM, exit_handler) != SIG_ERR);
 }
 
 int main(int argc, char *argv[]) {
