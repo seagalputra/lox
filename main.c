@@ -3,14 +3,26 @@
 #include <signal.h>
 
 #include "parser.h"
+#include "error.h"
 
 #define RL_BUFSIZE 1024
+
+bool had_error = false;
+
+void run(char* src) {
+	token* t = scan_tokens(src);
+
+	if (t) {
+		// do something with t
+		free(t);
+	}
+}
 
 void exit_handler(int signum) {
   exit(signum);
 }
 
-void run_file(char* file_path) {
+void read_file(char* file_path) {
   FILE* src = NULL;
   char* buff = NULL;
   unsigned long fsize;
@@ -42,10 +54,11 @@ void run_file(char* file_path) {
 
   fclose(src);
 
-  // TODO: do something with the saved buffer
-  printf("Contents of the file:\n%s\n", buff);
+  run(buff);
 
   free(buff);
+
+  if (had_error == true) exit(65);
 }
 
 char* read_line() {
@@ -92,10 +105,11 @@ void run_prompt() {
   do {
     printf("lox> ");
     buff = read_line();
-
-    printf("User input -> %s\n", buff);
+    run(buff);
 
     free(buff);
+
+    had_error = false;
   } while (signal(SIGTERM, exit_handler) != SIG_ERR);
 }
 
@@ -106,9 +120,9 @@ int main(int argc, char *argv[]) {
   } else if (argc == 2) {
     // running a lox file
     char* path = argv[1];
-    run_file(path);
+    read_file(path);
   } else {
-    // spawn a REPL or execute a code immidiately
+    // spawn a REPL and execute the code immidiately
     run_prompt();
   }
   
