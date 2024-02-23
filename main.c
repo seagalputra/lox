@@ -11,7 +11,41 @@ void exit_handler(int signum) {
 }
 
 void run_file(char* file_path) {
-  printf("File path -> %s\n", file_path);
+  FILE* src = NULL;
+  char* buff = NULL;
+  unsigned long fsize;
+  
+  src = fopen(file_path, "rb");
+  if (src == NULL) {
+  	fprintf(stderr, "lox: unable to open file");
+  	exit(EXIT_FAILURE);
+  }
+
+  // calculate the size of the inputted file
+  fseek(src, 0, SEEK_END);
+  fsize = ftell(src);
+  rewind(src);
+
+  buff = (char*)malloc(fsize);
+  if (buff == NULL) {
+  	fprintf(stderr, "lox: allocation error\n");
+  	fclose(src);
+  	exit(EXIT_FAILURE);
+  }
+
+  if (fread(buff, 1, fsize, src) != fsize) {
+  	fprintf(stderr, "lox: error reading file\n");
+  	fclose(src);
+  	free(buff);
+  	exit(EXIT_FAILURE);
+  }
+
+  fclose(src);
+
+  // TODO: do something with the saved buffer
+  printf("Contents of the file:\n%s\n", buff);
+
+  free(buff);
 }
 
 char* read_line() {
